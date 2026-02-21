@@ -45,14 +45,46 @@ st.markdown("""
     .badge { display:inline-block;padding:2px 10px;border-radius:12px;font-size:.75rem;font-weight:700;color:white; }
     .metric-big { font-size:2rem;font-weight:800;color:var(--dark); }
     .metric-label { font-size:.8rem;color:#64748B;text-transform:uppercase;letter-spacing:.5px; }
-    .timer-display { font-size:3.5rem;font-weight:800;font-family:monospace;text-align:center;padding:20px 0; }
+    .timer-display { font-size:3rem;font-weight:800;font-family:monospace;text-align:center;padding:16px 0; }
     .progress-ring { background:#F1F5F9;border-radius:10px;padding:12px;margin:6px 0; }
     .message-preview { background:#F8FAFC;border-radius:10px;padding:14px;margin:8px 0;border:1px solid #E2E8F0;font-size:.9rem;white-space:pre-wrap; }
     .compliance-item { background:white;border-radius:10px;padding:12px;margin:4px 0;border-left:3px solid #E2E8F0; }
     .compliance-required { border-left-color:var(--danger); }
-    .stButton > button { border-radius:10px;min-height:44px;font-weight:600; }
+    .stButton > button { border-radius:10px;min-height:48px;font-weight:600;font-size:.85rem; }
     .stExpander { border-radius:10px; }
     #MainMenu {visibility:hidden;} footer {visibility:hidden;}
+
+    /* ── Mobile Navigation Grid ── */
+    .nav-grid { display:grid;grid-template-columns:repeat(4, 1fr);gap:6px;margin:8px 0; }
+    .nav-btn { display:flex;flex-direction:column;align-items:center;justify-content:center;
+        padding:10px 4px;border-radius:10px;border:1px solid #E2E8F0;background:white;
+        cursor:pointer;text-decoration:none;color:#475569;font-size:.7rem;font-weight:600;
+        min-height:56px;transition:all .15s; }
+    .nav-btn:hover { background:#F1F5F9;border-color:#94A3B8; }
+    .nav-btn.active { background:#2563EB;color:white;border-color:#2563EB; }
+    .nav-btn .nav-icon { font-size:1.2rem;margin-bottom:2px; }
+
+    /* ── Mobile Responsive ── */
+    @media (max-width: 768px) {
+        .stApp > header { display:none; }
+        .block-container { padding:0.5rem 0.75rem !important;max-width:100% !important; }
+        .stat-card { padding:12px; }
+        .stat-card div[style*="display:flex"] { gap:12px !important; }
+        .timer-display { font-size:2.5rem;padding:12px 0; }
+        .action-card, .property-card, .booking-card { padding:12px;margin:4px 0; }
+        .nav-grid { grid-template-columns:repeat(4, 1fr);gap:4px; }
+        .nav-btn { min-height:50px;padding:8px 2px;font-size:.65rem; }
+        .stButton > button { min-height:48px;font-size:.85rem; }
+        h2 { font-size:1.3rem !important; }
+        h3 { font-size:1.1rem !important; }
+        /* Stack columns on mobile */
+        [data-testid="column"] { width:100% !important;flex:unset !important; }
+    }
+
+    /* ── iPhone notch safe area ── */
+    @supports (padding: max(0px)) {
+        .block-container { padding-top:max(0.5rem, env(safe-area-inset-top)) !important; }
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -209,9 +241,9 @@ def nav_to(view):
 # HEADER
 # ─────────────────────────────────────────────────────────────────────
 st.markdown("""
-<div style="text-align:center;padding:6px 0;">
-    <h1 style="margin:0;font-size:1.7rem;">🏠 HostFlow</h1>
-    <p style="margin:0;color:#64748B;font-size:.85rem;">STR Operating System · Tax Compliance · Audit Ready</p>
+<div style="text-align:center;padding:2px 0;">
+    <h1 style="margin:0;font-size:1.5rem;">🏠 HostFlow</h1>
+    <p style="margin:0;color:#64748B;font-size:.75rem;">STR Ops · Tax · Audit Ready</p>
 </div>
 """, unsafe_allow_html=True)
 
@@ -270,18 +302,17 @@ with st.sidebar:
         st.caption("Add `gcp_service_account_json` and `sheet_url` to secrets for cloud persistence.")
 
 
-# ─── NAVIGATION ───
-nav_views = [
-    ("📋 Brief", "briefing"), ("⏱️ Time", "time_tracker"), ("🏠 Props", "properties"),
-    ("📅 Book", "bookings"), ("📥 iCal", "ical_import"), ("💰 Finance", "finances"),
-    ("💬 Msg", "messages"), ("📇 Team", "contacts"), ("✅ Comply", "compliance"),
-    ("📎 Docs", "documents"), ("🤖 AI", "ai_chat"),
-]
-cols = st.columns(len(nav_views))
-for i, (label, vk) in enumerate(nav_views):
-    with cols[i]:
-        if st.button(label, use_container_width=True, type="primary" if st.session_state.view == vk else "secondary"):
-            nav_to(vk)
+# ─── NAVIGATION (mobile-friendly grid) ───
+nav_row1 = [("📋 Brief", "briefing"), ("⏱️ Time", "time_tracker"), ("🏠 Props", "properties"), ("📅 Book", "bookings")]
+nav_row2 = [("💰 Finance", "finances"), ("💬 Msg", "messages"), ("📇 Team", "contacts"), ("📥 iCal", "ical_import")]
+nav_row3 = [("✅ Comply", "compliance"), ("📎 Docs", "documents"), ("🤖 AI", "ai_chat")]
+
+for nav_row in [nav_row1, nav_row2, nav_row3]:
+    cols = st.columns(len(nav_row))
+    for i, (label, vk) in enumerate(nav_row):
+        with cols[i]:
+            if st.button(label, use_container_width=True, type="primary" if st.session_state.view == vk else "secondary", key=f"nav_{vk}"):
+                nav_to(vk)
 st.divider()
 
 
